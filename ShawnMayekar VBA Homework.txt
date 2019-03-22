@@ -1,0 +1,151 @@
+Sub Stock_data():
+
+'loop through all worksheets with these variables
+
+Dim Ticker As String
+Dim Total_Stock_Volume As Double
+Dim Yearly_Change As Double
+Dim Percent_Change As Double
+Dim Greatest_Percent_Increase As Double
+Dim Greatest_Percent_Decrease As Double
+Dim Greatest_Total_Volume As Long
+Dim Summary_Table_Row As Integer
+Dim opening, closing As Double
+
+
+For Each ws In Worksheets
+    
+    Summary_Table_Row = 2
+    
+    Total_Stock_Volume = 0
+
+    
+    LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+    opening = ws.Cells(2, 3)
+    For i = 2 To LastRow
+    
+        
+        If ws.Cells(i + 1, 1) <> ws.Cells(i, 1) Then
+            Ticker = ws.Cells(i, 1)
+            Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7)
+        
+            closing = ws.Cells(i, 6)
+           
+            Yearly_Change = closing - opening
+            
+            
+            If opening = 0 Then
+                Percent_Change = 0
+            Else
+                Percent_Change = Yearly_Change / opening * 100
+           End If
+            
+            ws.Range("I" & Summary_Table_Row).Value = Ticker
+            ws.Range("J" & Summary_Table_Row).Value = Yearly_Change
+            ws.Range("K" & Summary_Table_Row).Value = (Percent_Change & "%")
+            ws.Range("L" & Summary_Table_Row).Value = Total_Stock_Volume
+            
+             
+            Total_Stock_Volume = 0
+       
+            opening = ws.Cells(i + 1, 3)
+            
+             ' Conditional format that highlights positive % change in green and negative % change in red
+            
+             If ws.Range("J" & Summary_Table_Row).Value >= 0 Then
+                ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+            
+            Else
+            
+                ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+            
+                End If
+            
+                Summary_Table_Row = Summary_Table_Row + 1
+        Else
+            Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7)
+           
+        
+        
+       
+        
+        End If
+        
+
+        
+    Next i
+    
+    ' Summary Names
+    
+    ws.Range("I1") = "Ticker"
+    ws.Range("P1") = "Ticker "
+    ws.Range("J1") = "Yearly Change"
+    ws.Range("K1") = "Percent Change"
+    ws.Range("L1") = "Total Stock Volume"
+    ws.Range("Q1") = "Value"
+    ws.Range("O2") = "Greatest % Increase"
+    ws.Range("O3") = "Greatest % Decrease"
+    ws.Range("O4") = "Greatest Total Volume"
+
+    
+End Sub
+
+Sub Additional_Data()
+
+
+Dim maxpercent, maxvolume, minpercent As Double
+Dim rng1 As Range
+Dim rng As Range
+Dim FndRng As Range
+Dim i, LastRow As Integer
+Dim ticker_min, ticker_max, ticker_total As String
+
+
+For Each ws In Worksheets
+    
+    Set rng = ws.Columns(11)
+    maxpercent = ws.Application.Max(rng)
+    ws.Range("Q2") = maxpercent
+    
+    minpercent = ws.Application.Min(rng)
+    ws.Range("Q3") = minpercent
+    
+    Set rng1 = ws.Columns(12)
+    maxvolume = ws.Application.Max(rng1)
+    ws.Range("Q4") = maxvolume
+    
+    'set total volume as number
+    
+     ws.Cells(4, 17).Style = "normal"
+    
+    'set % increase and decrease as percentages
+    
+    ws.Cells(2, 17).Style = "percent"
+    ws.Cells(3, 17).Style = "percent"
+    
+    LastRow = ws.Cells(Rows.Count, 11).End(xlUp).Row
+    For i = 2 To LastRow
+        If ws.Cells(i, 11) = minpercent Then
+            ticker_min = ws.Cells(i, 9)
+        End If
+        
+    
+        If ws.Cells(i, 11) = maxpercent Then
+            ticker_max = ws.Cells(i, 9)
+            
+        End If
+            
+        If ws.Cells(i, 12) = maxvolume Then
+            ticker_total = ws.Cells(i, 9)
+            
+        End If
+            
+    Next i
+    
+
+Next ws
+
+End Sub
+
+
